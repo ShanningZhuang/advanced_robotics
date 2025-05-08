@@ -1,0 +1,186 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: white;
+    color: #333;
+}
+
+/* PDF Presentation Container */
+.pdf-presentation {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: white;
+}
+
+/* Slides with 16:9 Aspect Ratio */
+.slide {
+    width: 100%;
+    aspect-ratio: 16/9;
+    padding: 50px;
+    page-break-after: always;
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin: 0 auto;
+    /* For browsers that don't support aspect-ratio */
+    height: 0;
+    padding-bottom: 56.25%; /* 9/16 = 0.5625 = 56.25% */
+}
+
+/* Fix for modern browsers that support aspect-ratio */
+@supports (aspect-ratio: 16/9) {
+    .slide {
+        height: auto;
+        padding-bottom: 0;
+    }
+}
+
+.slide-content {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 50px;
+}
+
+/* Typography */
+h1 {
+    font-size: 42px;
+    color: #2c3e50;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+h2 {
+    font-size: 36px;
+    color: #2c3e50;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 8px;
+}
+
+h3 {
+    font-size: 24px;
+    color: #7f8c8d;
+    margin-bottom: 32px;
+    text-align: center;
+}
+
+p {
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+ul, ol {
+    font-size: 18px;
+    margin-left: 24px;
+    margin-bottom: 16px;
+}
+
+li {
+    margin-bottom: 12px;
+}
+
+/* Two Column Layout */
+.two-col {
+    display: flex;
+    gap: 32px;
+}
+
+.col {
+    flex: 1;
+}
+
+/* Images */
+img {
+    max-width: 100%;
+    border-radius: 5px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    margin: 16px 0;
+}
+
+/* Special Element Styles */
+.contact {
+    color: #7f8c8d;
+    font-style: italic;
+    text-align: center;
+    margin-top: 32px;
+}
+
+/* First Slide - Title Slide */
+#slide1 .slide-content {
+    text-align: center;
+}
+
+/* Print Specific Styles */
+@media print {
+    body {
+        background: white;
+    }
+    
+    .slide {
+        page-break-after: always;
+        page-break-inside: avoid;
+        /* Ensure proper 16:9 aspect ratio printing */
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16/9;
+    }
+    
+    .slide:last-child {
+        page-break-after: avoid;
+    }
+
+    /* Fix for possible background print issues */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    /* For browsers that don't support aspect-ratio in print */
+    @supports not (aspect-ratio: 16/9) {
+        .slide {
+            height: 0;
+            padding-bottom: 56.25%; /* 9/16 = 0.5625 = 56.25% */
+        }
+    }
+}
+
+/* Media queries for smaller screens */
+@media (max-width: 768px) {
+    .slide {
+        padding: 30px;
+    }
+    
+    .slide-content {
+        padding: 30px;
+    }
+
+    h1 {
+        font-size: 32px;
+    }
+
+    h2 {
+        font-size: 28px;
+    }
+
+    p, ul, ol {
+        font-size: 16px;
+    }
+
+    .two-col {
+        flex-direction: column;
+    }
+} 
