@@ -489,5 +489,40 @@ def InverseKinematics_in_space(Slist, M, T_sd, thetalist0, eomg, ev):
         (np.array([ 1.57073783,  2.99966384,  3.1415342 ]), True)
     """
     # TODO:  --- Your code start ---
-    pass
+    MAX_NUM_ITER = 20  # Maximum number of iterations
+    thetalist = np.array(thetalist0).copy()
+    
+    for i in range(MAX_NUM_ITER):
+        # Forward kinematics to get current end-effector configuration
+        T_sb = FK_in_space(M, Slist, thetalist)
+        
+        # Calculate the error twist
+        T_bd = np.dot(trans_inv(T_sb), T_sd)  # T_bd = T_sb^-1 * T_sd
+        V_b = matrix_log6(T_bd)               # Convert to se(3)
+        V_s = np.dot(adjoint(T_sb), se3_to_vec(V_b))  # Convert to space frame
+        
+        # Check if the error is small enough
+        omega_err = np.linalg.norm(V_s[0:3])
+        v_err = np.linalg.norm(V_s[3:6])
+        
+        if omega_err <= eomg and v_err <= ev:
+            return thetalist, True
+        
+        # Calculate the body Jacobian
+        J_s = jacobian_space(Slist, thetalist)
+        
+        # Update joint angles using the Newton-Raphson method
+        # Use damped least squares to handle singularities
+        lambda_sq = 0.0001  # Damping factor
+        J_s_inv = np.dot(J_s.T, np.linalg.inv(np.dot(J_s, J_s.T) + lambda_sq * np.eye(6)))
+        
+        # Calculate the joint angle update
+        thetalist = thetalist + np.dot(J_s_inv, V_s)
+        
+        # Ensure joint angles are within [-pi, pi]
+        for j in range(len(thetalist)):
+            thetalist[j] = (thetalist[j] + np.pi) % (2 * np.pi) - np.pi
+    
+    # If we reached the maximum number of iterations without finding a solution
+    return thetalist, False
     # TODO:  --- Your code ends ---
