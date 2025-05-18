@@ -11,8 +11,8 @@ from robot_env import *
 
 
 # for pick and place demo, use PICK_PLACE
-TESTING = "IK"
-# TESTING = "PICK_PLACE"
+# TESTING = "IK"
+TESTING = "PICK_PLACE"
 
 
 def IK_test(robot, physicsClientId):
@@ -67,44 +67,86 @@ def pick_and_place_demo(robot, physicsClientId):
     # define the via points
     via_point_pick = [
         # TODO:  --- Your code start ---
-
+        # Home position
+        [0.2, 0.0, 0.5],
+        # Above the gray box
+        [0.4, -0.3, 0.25],
+        # Lower to the Lego brick
+        [0.4, -0.3, 0.05]
         # TODO:  --- Your code ends ---
     ]
     via_point_place = [
         # TODO:  --- Your code start ---
-
+        # Lift up from pick position
+        [0.4, -0.3, 0.25],
+        # Move above the blue box
+        [0.4, 0.3, 0.25],
+        # Lower to place the Lego brick
+        [0.4, 0.3, 0.05]
         # TODO:  --- Your code ends ---
     ]
     # back your robot to the start position
     via_point_back = [
         # TODO:  --- Your code start ---
-
+        # Lift up from place position
+        [0.4, 0.3, 0.25],
+        # Home position
+        [0.2, 0.0, 0.5]
         # TODO:  --- Your code ends ---
     ]
     # Move the robot though via_point_pick points
     # TODO:  --- Your code start ---
-
+    print("---Moving to pick position---")
+    for i, p_target in enumerate(via_point_pick):
+        print(f"Moving to pick waypoint {i+1}")
+        T = rp_to_trans(R, np.array(p_target))
+        thetalist, success = InverseKinematics_in_space(np.array(screw_axis).T, M, T, thetalist0, 0.001, 0.0005)
+        if success:
+            robot.apply_action(thetalist, max_vel=5)
+            step_sim(0.5, physicsClientId=physicsClientId)
+            thetalist0 = thetalist
+        else:
+            print(f"IK failed at pick waypoint {i+1}")
     # TODO:  --- Your code ends ---
 
     robot.pre_grasp()
-    step_sim(0.5, physicsClientId=physicsClientId)
+    step_sim(0.2, physicsClientId=physicsClientId)
     print("---Grasping!---")
     robot.grasp()
-    step_sim(0.5, physicsClientId=physicsClientId)
+    step_sim(0.2, physicsClientId=physicsClientId)
 
     # Move the robot though via_point_place points
     # TODO:  --- Your code start ---
-
+    print("---Moving to place position---")
+    for i, p_target in enumerate(via_point_place):
+        print(f"Moving to place waypoint {i+1}")
+        T = rp_to_trans(R, np.array(p_target))
+        thetalist, success = InverseKinematics_in_space(np.array(screw_axis).T, M, T, thetalist0, 0.001, 0.0005)
+        if success:
+            robot.apply_action(thetalist, max_vel=5)
+            step_sim(0.5, physicsClientId=physicsClientId)
+            thetalist0 = thetalist
+        else:
+            print(f"IK failed at place waypoint {i+1}")
     # TODO:  --- Your code ends ---
 
     print("---Placing!---")
     robot.pre_grasp()
-    step_sim(0.5, physicsClientId=physicsClientId)
+    step_sim(0.2, physicsClientId=physicsClientId)
 
     print("---Back to home!---")
     # Move the robot though via_point_back points
     # TODO:  --- Your code start ---
-
+    for i, p_target in enumerate(via_point_back):
+        print(f"Moving to home waypoint {i+1}")
+        T = rp_to_trans(R, np.array(p_target))
+        thetalist, success = InverseKinematics_in_space(np.array(screw_axis).T, M, T, thetalist0, 0.001, 0.0005)
+        if success:
+            robot.apply_action(thetalist, max_vel=5)
+            step_sim(0.5, physicsClientId=physicsClientId)
+            thetalist0 = thetalist
+        else:
+            print(f"IK failed at home waypoint {i+1}")
     # TODO:  --- Your code ends ---
 
     print("---Finish pick_and_place_demo---")
