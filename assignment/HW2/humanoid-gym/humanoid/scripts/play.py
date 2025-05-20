@@ -63,7 +63,7 @@ def play(args):
             gymapi.Transform(camera_offset, camera_rotation),
             gymapi.FOLLOW_POSITION)
 
-        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+        fourcc = cv2.VideoWriter_fourcc(*"avc1")
         video_dir = os.path.join(LEGGED_GYM_ROOT_DIR, 'videos')
         experiment_dir = os.path.join(LEGGED_GYM_ROOT_DIR, 'videos', train_cfg.runner.experiment_name)
         dir = os.path.join(experiment_dir, datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + '_' + train_cfg.runner.experiment_name + '_' + args.run_name + '.mp4')
