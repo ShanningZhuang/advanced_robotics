@@ -30,7 +30,8 @@
 
 import math
 import numpy as np
-import mujoco, mujoco_viewer
+import mujoco
+import mujoco.viewer
 from tqdm import tqdm
 from collections import deque
 from scipy.spatial.transform import Rotation as R
@@ -99,7 +100,7 @@ def run_mujoco(policy, cfg):
     model.opt.timestep = cfg.sim_config.dt
     data = mujoco.MjData(model)
     mujoco.mj_step(model, data)
-    viewer = mujoco_viewer.MujocoViewer(model, data)
+    viewer = mujoco.viewer.launch_passive(model, data)
 
     target_q = np.zeros((cfg.env.num_actions), dtype=np.double)
     action = np.zeros((cfg.env.num_actions), dtype=np.double)
@@ -158,7 +159,7 @@ def run_mujoco(policy, cfg):
         data.ctrl = tau
 
         mujoco.mj_step(model, data)
-        viewer.render()
+        viewer.sync()
         count_lowlevel += 1
 
     viewer.close()
