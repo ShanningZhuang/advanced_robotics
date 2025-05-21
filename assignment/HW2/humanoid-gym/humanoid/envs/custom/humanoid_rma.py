@@ -38,7 +38,34 @@ class XBotLRMAEnv(XBotLFreeEnv):
 
         # Please refer to self.privileged_obs_buf, the implementation is basically the same.
 
-        self.rma_obs_buf = None
+        # Recompute the values you need
+        diff = self.dof_pos - self.ref_dof_pos
+        stance_mask = self._get_gait_phase()
+        contact_mask = self.contact_forces[:, self.feet_indices, 2] > 5.
+
+        # Create single RMA observation
+        rma_obs_now = torch.cat((
+            diff,  # 12-dim dof difference to reference
+            self.base_lin_vel * self.obs_scales.lin_vel,  # 3-dim base linear velocity
+            self.rand_push_force[:, :2],  # 2-dim push force
+            self.rand_push_torque,  # 3-dim push torque
+            self.env_frictions,  # 1-dim environment friction
+            self.body_mass / 30.,  # 1-dim body mass (scaled same as in privileged_obs)
+            stance_mask,  # 2-dim stance mask
+            contact_mask,  # 2-dim contact mask
+        ), dim=-1)
+
+        # Add terrain heights if configured
+        if self.cfg.terrain.measure_heights:
+            heights = torch.clip(self.root_states[:, 2].unsqueeze(1) - 0.5 - self.measured_heights, -1, 1.) * self.obs_scales.height_measurements
+            rma_obs_now = torch.cat((rma_obs_now, heights), dim=-1)
+
+        # Update RMA observation history
+        self.rma_obs_history.append(rma_obs_now)
+
+        # Stack RMA observations from history
+        rma_obs_stack = torch.stack([self.rma_obs_history[i] for i in range(self.rma_obs_history.maxlen)], dim=1)  # N,T,K
+        self.rma_obs_buf = rma_obs_stack.reshape(self.num_envs, -1)  # N, T*K
         # ------------------------------------------------------------
 
     def step(self, actions):
@@ -59,6 +86,9 @@ class XBotLRMAEnv(XBotLFreeEnv):
         # Refer to the base method
         # You only need to change self.rma_obs_history
 
+        # Reset RMA observation history for specified environments
+        for i in range(self.rma_obs_history.maxlen):
+            self.rma_obs_history[i][env_ids] *= 0
         # ------------------------------------------------------------
 
     def reset(self):

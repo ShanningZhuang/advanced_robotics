@@ -58,11 +58,13 @@ class RMA(PPO):
                 # Get actions_log_prob_batch, value_batch, mu_batch, sigma_batch, entropy_batch
                 # Refer to PPO.update
 
-                actions_log_prob_batch = None
-                value_batch = None
-                mu_batch = None
-                sigma_batch = None
-                entropy_batch = None
+                # Update action distribution with RMA observations
+                self.actor_critic.update_distribution(obs_batch, rma_obs_batch)
+                actions_log_prob_batch = self.actor_critic.get_actions_log_prob(actions_batch)
+                value_batch = self.actor_critic.evaluate(critic_obs_batch)
+                mu_batch = self.actor_critic.action_mean
+                sigma_batch = self.actor_critic.action_std
+                entropy_batch = self.actor_critic.entropy
                 # ------------------------------------------------------------
 
                 # KL

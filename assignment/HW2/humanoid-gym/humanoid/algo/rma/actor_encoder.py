@@ -23,15 +23,33 @@ class ActorEncoder(nn.Module):
         # Encoder will get input of the rma obs (dim=num_rma_obs), and output a latent vector (dim=num_latents).
         # Actor will get input of actor obs (dim=num_actor_obs) as well as the latent vector, and output an action (dim=num_actions).
         
-        self.actor = None
-        self.encoder = None
+        # Build encoder network
+        encoder_layers = []
+        encoder_layers.append(nn.Linear(num_rma_obs, enc_hidden_dims[0]))
+        encoder_layers.append(activation)
+        for i in range(len(enc_hidden_dims)-1):
+            encoder_layers.append(nn.Linear(enc_hidden_dims[i], enc_hidden_dims[i+1]))
+            encoder_layers.append(activation)
+        encoder_layers.append(nn.Linear(enc_hidden_dims[-1], num_latents))
+        self.encoder = nn.Sequential(*encoder_layers)
+        
+        # Build actor network (takes in both observations and latents)
+        actor_layers = []
+        actor_layers.append(nn.Linear(num_actor_obs + num_latents, actor_hidden_dims[0]))
+        actor_layers.append(activation)
+        for i in range(len(actor_hidden_dims)-1):
+            actor_layers.append(nn.Linear(actor_hidden_dims[i], actor_hidden_dims[i+1]))
+            actor_layers.append(activation)
+        actor_layers.append(nn.Linear(actor_hidden_dims[-1], num_actions))
+        self.actor = nn.Sequential(*actor_layers)
         # --------------------------------------------------------
 
     def forward(self, observation, rma_obs):
         # TODO ---------------------------------------------------
         # Use your actor and encoder to get the action
 
-        action_mean = None
+        latent = self.encode(rma_obs)
+        action_mean = self.actor(torch.cat([observation, latent], dim=1))
         # --------------------------------------------------------
         return action_mean
     
@@ -39,6 +57,6 @@ class ActorEncoder(nn.Module):
         # TODO ---------------------------------------------------
         # Use your encoder to get the latent vector
 
-        est_latent = None
+        est_latent = self.encoder(rma_obs)
         # --------------------------------------------------------
         return est_latent

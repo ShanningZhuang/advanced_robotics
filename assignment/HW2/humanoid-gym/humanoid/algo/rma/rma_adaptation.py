@@ -63,14 +63,18 @@ class RMAAdaptation(RMA):
                 # The encoder loss is set to the mean square loss of student and teacher latents.
                 # The action loss is set to the mean square loss of student and teacher actions.
 
-                student_latent = None
-                student_action = None
+                # Get student latent and action
+                student_latent = self.actor_critic.encode(obs_batch)
+                student_action = self.actor_critic.act_inference(obs_batch, obs_batch)
+                
+                # Get teacher latent and action with no gradient tracking
                 with torch.no_grad():
-                    teacher_latent = None
-                    teacher_action = None
+                    teacher_latent = self.teacher_actor_critic.encode(rma_obs_batch)
+                    teacher_action = self.teacher_actor_critic.act_inference(obs_batch, rma_obs_batch)
 
-                encoder_loss = None
-                action_loss = None
+                # Calculate mean squared error losses
+                encoder_loss = torch.mean((student_latent - teacher_latent)**2)
+                action_loss = torch.mean((student_action - teacher_action)**2)
                 # ------------------------------------------------------------
 
                 loss = encoder_loss*0.1 + action_loss

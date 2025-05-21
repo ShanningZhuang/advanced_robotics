@@ -21,8 +21,8 @@ class XBotLRMACfg(XBotLCfg):
         # Set the length of single and full rma obs
         # The full rma obs is a stack of single rma obs, stack number is r_frame_stack
 
-        single_num_rma_obs = None
-        num_rma_obs = None
+        single_num_rma_obs = 51  # 12 + 3 + 2 + 3 + 1 + 1 + 2 + 2 + 25 (heights)
+        num_rma_obs = int(r_frame_stack * single_num_rma_obs)
         # ------------------------------------------------------------
 
     class terrain(XBotLCfg.terrain):
