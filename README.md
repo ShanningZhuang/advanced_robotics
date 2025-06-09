@@ -13,6 +13,10 @@ Robotics is a multidisciplinary field that combines mechanical engineering, elec
 - Computer vision for robotics
 - Reinforcement learning for robotics
 
+## Instructor
+
+This course is taught by [Dr. Jianyu Chen](https://people.iiis.tsinghua.edu.cn/~jychen/), an Assistant Professor in the Institute for Interdisciplinary Information Sciences (IIIS) at Tsinghua University. His research focuses on reinforcement learning, robotics, control, and autonomous driving.
+
 ## Course Resources
 
 ### Introduction
